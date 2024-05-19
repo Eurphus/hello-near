@@ -1,6 +1,4 @@
 DEFINE_NEAR_METHOD(add_task)
 DEFINE_NEAR_METHOD(check_expired_tasks)
 DEFINE_NEAR_METHOD(fulfill_task)
-DEFINE_NEAR_METHOD(get_greeting)
 DEFINE_NEAR_METHOD(get_tasks)
-DEFINE_NEAR_METHOD(set_greeting)

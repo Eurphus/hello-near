@@ -939,27 +939,13 @@ class NearPromise {
   }
 }
 
-var _dec, _dec2, _dec3, _dec4, _dec5, _dec6, _dec7, _class, _class2;
-let NearlyDone = (_dec = NearBindgen({}), _dec2 = view(), _dec3 = call({}), _dec4 = call({
+var _dec, _dec2, _dec3, _dec4, _dec5, _class, _class2;
+let NearlyDone = (_dec = NearBindgen({}), _dec2 = call({
   payableFunction: true
-}), _dec5 = call({}), _dec6 = call({}), _dec7 = view(), _dec(_class = (_class2 = class NearlyDone {
+}), _dec3 = call({}), _dec4 = view(), _dec5 = view(), _dec(_class = (_class2 = class NearlyDone {
   tasks = [];
   ID = 0;
-  monthly_charity_name = '';
-  monthly_charity_address = '';
-  greeting = "Hello";
-  // This method is read-only and can be called for free
-  get_greeting() {
-    return this.greeting;
-  }
-  // This method changes the state, for which it cost gas
-  set_greeting({
-    greeting
-  }) {
-    log(`Saving greeting ${greeting}`);
-    this.greeting = greeting;
-  }
-  //voting_list: Array<any> = [];
+  last_checked = "05/20/2024T00:00";
 
   //
   // Tasks
@@ -968,16 +954,18 @@ let NearlyDone = (_dec = NearBindgen({}), _dec2 = view(), _dec3 = call({}), _dec
     name,
     description,
     day,
-    time
+    time,
+    charity = "sickkids.testnet"
   }) {
     log(`Adding task ${name}`);
     this.ID++;
     let user = predecessorAccountId();
     let userAMT = attachedDeposit();
-    log(userAMT);
     userAMT -= usedGas();
     let converted = Number(userAMT) / 10 ** 24;
-    log(userAMT);
+    if (converted < 0.01) {
+      throw new Error("Must send more than 0.01 NEAR");
+    }
     let task = {
       task: name,
       id: this.ID,
@@ -986,6 +974,7 @@ let NearlyDone = (_dec = NearBindgen({}), _dec2 = view(), _dec3 = call({}), _dec
       time: time,
       staked: converted,
       creator: user,
+      charity: charity,
       fulfilled: false
     };
     this.tasks.push(task);
@@ -1005,7 +994,6 @@ let NearlyDone = (_dec = NearBindgen({}), _dec2 = view(), _dec3 = call({}), _dec
         return NearPromise.new(task.creator).transfer(userAMT);
       }
     }
-    log("Fundamental error ):");
     throw new Error("Attempted to fetch an ID that does not exist");
   }
 
@@ -1014,32 +1002,27 @@ let NearlyDone = (_dec = NearBindgen({}), _dec2 = view(), _dec3 = call({}), _dec
   check_expired_tasks() {
     const currentTime = new Date();
     for (let i = 0; i < this.tasks.length; i++) {
-      let taskTime = new Date(`${this.tasks[i].day}T${this.tasks[i].time}`);
-      if (taskTime < currentTime && !this.tasks[i].fulfilled) {
-        log(`Task ${this.tasks[i].id} is expired. Transferring funds to charity of the month ${this.monthly_charity_name}`);
-        //near.promiseBatchCreate(this.monthly_charity_name);
-        //near.promiseBatchActionTransfer(this.tasks[i].staked, 0);
-        this.tasks[i].fulfilled = true;
+      let task = this.tasks[i];
+      let taskTime = new Date(`${task.day}T${task.time}`);
+      if (taskTime < currentTime && !task.fulfilled) {
+        let userAMT = BigInt(task.staked * 10 ** 24);
+        NearPromise.new(task.charity_address).transfer(userAMT);
+        task.fulfilled = true;
       }
     }
   }
-  get_tasks() {
+  get_tasks({
+    user_id
+  }) {
+    // Filter Disabled, encountering bugs on frontend
+    this.check_expired_tasks();
     return this.tasks;
-  }
 
-  //
-  // Charity
-  //
-  /*
-  @call({})
-  set_charity({ charity_name }: { charity_name: string}): void {
-    let charity_address = this.voting_list[charity_name];
-    this.monthly_charity_name = charity_address
-    this.monthly_charity_address
-    near.log(`Successfully changed charity to ${charity_name}`)
+    // return this.tasks.filter(task => 
+    //   task.creator == user_id 
+    // );
   }
-  */
-}, (_applyDecoratedDescriptor(_class2.prototype, "get_greeting", [_dec2], Object.getOwnPropertyDescriptor(_class2.prototype, "get_greeting"), _class2.prototype), _applyDecoratedDescriptor(_class2.prototype, "set_greeting", [_dec3], Object.getOwnPropertyDescriptor(_class2.prototype, "set_greeting"), _class2.prototype), _applyDecoratedDescriptor(_class2.prototype, "add_task", [_dec4], Object.getOwnPropertyDescriptor(_class2.prototype, "add_task"), _class2.prototype), _applyDecoratedDescriptor(_class2.prototype, "fulfill_task", [_dec5], Object.getOwnPropertyDescriptor(_class2.prototype, "fulfill_task"), _class2.prototype), _applyDecoratedDescriptor(_class2.prototype, "check_expired_tasks", [_dec6], Object.getOwnPropertyDescriptor(_class2.prototype, "check_expired_tasks"), _class2.prototype), _applyDecoratedDescriptor(_class2.prototype, "get_tasks", [_dec7], Object.getOwnPropertyDescriptor(_class2.prototype, "get_tasks"), _class2.prototype)), _class2)) || _class);
+}, (_applyDecoratedDescriptor(_class2.prototype, "add_task", [_dec2], Object.getOwnPropertyDescriptor(_class2.prototype, "add_task"), _class2.prototype), _applyDecoratedDescriptor(_class2.prototype, "fulfill_task", [_dec3], Object.getOwnPropertyDescriptor(_class2.prototype, "fulfill_task"), _class2.prototype), _applyDecoratedDescriptor(_class2.prototype, "check_expired_tasks", [_dec4], Object.getOwnPropertyDescriptor(_class2.prototype, "check_expired_tasks"), _class2.prototype), _applyDecoratedDescriptor(_class2.prototype, "get_tasks", [_dec5], Object.getOwnPropertyDescriptor(_class2.prototype, "get_tasks"), _class2.prototype)), _class2)) || _class);
 function get_tasks() {
   const _state = NearlyDone._getState();
   if (!_state && NearlyDone._requireInit()) {
@@ -1064,7 +1047,6 @@ function check_expired_tasks() {
   }
   const _args = NearlyDone._getArgs();
   const _result = _contract.check_expired_tasks(_args);
-  NearlyDone._saveToStorage(_contract);
   if (_result !== undefined) if (_result && _result.constructor && _result.constructor.name === "NearPromise") _result.onReturn();else env.value_return(NearlyDone._serialize(_result, true));
 }
 function fulfill_task() {
@@ -1095,33 +1077,6 @@ function add_task() {
   NearlyDone._saveToStorage(_contract);
   if (_result !== undefined) if (_result && _result.constructor && _result.constructor.name === "NearPromise") _result.onReturn();else env.value_return(NearlyDone._serialize(_result, true));
 }
-function set_greeting() {
-  const _state = NearlyDone._getState();
-  if (!_state && NearlyDone._requireInit()) {
-    throw new Error("Contract must be initialized");
-  }
-  const _contract = NearlyDone._create();
-  if (_state) {
-    NearlyDone._reconstruct(_contract, _state);
-  }
-  const _args = NearlyDone._getArgs();
-  const _result = _contract.set_greeting(_args);
-  NearlyDone._saveToStorage(_contract);
-  if (_result !== undefined) if (_result && _result.constructor && _result.constructor.name === "NearPromise") _result.onReturn();else env.value_return(NearlyDone._serialize(_result, true));
-}
-function get_greeting() {
-  const _state = NearlyDone._getState();
-  if (!_state && NearlyDone._requireInit()) {
-    throw new Error("Contract must be initialized");
-  }
-  const _contract = NearlyDone._create();
-  if (_state) {
-    NearlyDone._reconstruct(_contract, _state);
-  }
-  const _args = NearlyDone._getArgs();
-  const _result = _contract.get_greeting(_args);
-  if (_result !== undefined) if (_result && _result.constructor && _result.constructor.name === "NearPromise") _result.onReturn();else env.value_return(NearlyDone._serialize(_result, true));
-}
 
-export { add_task, check_expired_tasks, fulfill_task, get_greeting, get_tasks, set_greeting };
+export { add_task, check_expired_tasks, fulfill_task, get_tasks };
 //# sourceMappingURL=nearlydone.js.map
