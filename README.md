@@ -1,83 +1,36 @@
-# Hello NEAR Contract
+# HawkHacks 2024 Hackathon Submission
+This project was developed by Peter Macdonald, Jemal K, Hamza and Seba at HawkHacks 2024.
 
-The smart contract exposes two methods to enable storing and retrieving a greeting in the NEAR network.
+This repo represents the backend / contract side of the NearlyDone project. See below links for the frontend.
 
-```ts
-@NearBindgen({})
-class HelloNear {
-  greeting: string = "Hello";
+# Inspiration
 
-  @view // This method is read-only and can be called for free
-  get_greeting(): string {
-    return this.greeting;
-  }
-
-  @call // This method changes the state, for which it cost gas
-  set_greeting({ greeting }: { greeting: string }): void {
-    // Record a log permanently to the blockchain!
-    near.log(`Saving greeting ${greeting}`);
-    this.greeting = greeting;
-  }
-}
-```
-
-<br />
-
-# Quickstart
-
-1. Make sure you have installed [node.js](https://nodejs.org/en/download/package-manager/) >= 16.
-2. Install the [`NEAR CLI`](https://github.com/near/near-cli#setup)
-
-<br/>
-
-## 1. Build and Test the Contract
-You can automatically compile and test the contract by running:
-
-```bash
-npm run build
-```
-
-<br/>
-
-## 2. Create an Account and Deploy the Contract
-You can create a new account and deploy the contract by running:
-
-```bash
-near create-account <your-account.testnet> --useFaucet
-near deploy <your-account.testnet> build/release/hello_near.wasm
-```
-
-<br />
+When our group started brainstorming for possible project ideas, we decided to discuss problems we faced in our daily lives and possible ways they could be solved. One of our team members talked about how procrastination caused him to delay starting work until right before it was due, or even worse, sometimes after it was late. Our team thought that a solution to this was creating a timed to-do list that would keep track of deadlines, and we added the concept of NEAR costs being donated to both motivate users to complete their tasks on time as well as to help charities doing work they want to support.
 
 
-## 3. Retrieve the Greeting
+# What it NearlyDone?
 
-`get_greeting` is a read-only method (aka `view` method).
+NearlyDone is a to-do list app built on the NEAR protocol that motivates users by imposing “costs” on them if they don’t complete their tasks on time. Users are able to add, delete, and check off tasks like on a regular to-do list, and are also able to set a deadline, cost amount, and recipient for each task. If a task isn’t completed and checked off by the deadline, then the cost amount will be sent from the user’s NEAR wallet to the recipient’s. Recipients on NearlyDone include a wide range of different charities, allowing users to support causes close to them with money from their incomplete tasks. NearlyDone not only encourages users to complete their day to day tasks, but also promotes DEI principles by providing funding for charities.
+How We Built It
 
-`View` methods can be called for **free** by anyone, even people **without a NEAR account**!
+We built NearlyDone on the NEAR protocol primarily using Next.js and React. Prior to starting this project, none of our team members had experience with blockchain development, Next.js, or React, so we dove deep into documentation, tutorials, and other resources provided on NEAR’s developer pages.
 
-```bash
-# Use near-cli to get the greeting
-near view <your-account.testnet> get_greeting
-```
 
-<br />
+# Challenges We Ran Into
 
-## 4. Store a New Greeting
-`set_greeting` changes the contract's state, for which it is a `call` method.
+Creating our contract was a big hurdle our team faced at the beginning of our project. None of our team members had experience with blockchain development, so we had to read a lot of documentation, experiment with a variety of different frameworks, and go through a lot of trial and error before we were even able to deploy a contract that allowed users to log in to their wallets. Another challenge we faced was creating the front end of our project. Our team had very minimal front end experience, so we had to go through many tutorials and fix a lot of bugs before we were able to get our website up and running.
 
-`Call` methods can only be invoked using a NEAR account, since the account needs to pay GAS for the transaction.
 
-```bash
-# Use near-cli to set a new greeting
-near call <your-account.testnet> set_greeting '{"greeting":"howdy"}' --accountId <your-account.testnet>
-```
+# Accomplishments That We're Proud Of
 
-**Tip:** If you would like to call `set_greeting` using another account, first login into NEAR using:
+We are proud of creating a project that not only compels people to work on achieving their goals, but also creates funding for charities. Another source of pride for our team is the fact that we were able to pick up new technologies and create a working project in under two days, even though our team members had cumulatively attended only two hackathons and had very minimal experience with the tools we used.
 
-```bash
-# Use near-cli to login your NEAR account
-near login
-```
 
-and then use the logged account to sign the transaction: `--accountId <another-account>`.
+# What We Learned
+
+Overall, this whole project was a learning experience for our team. We gained a new understanding of blockchain development, as well as front end design and programming. Other than technical experience, we also gained knowledge on a variety of blockchain topics, including contracts, transactions, staking, and security.
+
+# Links
+- Website: https://nearlydone.co (Will come offline soon)
+- Repository: https://github.com/Eurphus/nearly-done-contract and https://github.com/Eurphus/nearly-done-front
+- Devpost Equivalent: https://taikai.network/hackbox/hackathons/hawkhacks/projects/clwdecx530diauc01042h0h7k/idea
